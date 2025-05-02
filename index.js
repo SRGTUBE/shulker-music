@@ -6,8 +6,9 @@ import { YtDlpPlugin } from '@distube/yt-dlp';
 import fs from 'fs';
 import path from 'path';
 
-const prefix = process.env.PREFIX || '.';
-const token = process.env.TOKEN;
+// Hardcoded values
+const prefix = '.';
+const token = 'YOUR_DISCORD_BOT_TOKEN'; // Replace with your bot's token
 
 const client = new Client({
   intents: [
@@ -20,14 +21,14 @@ const client = new Client({
 
 client.commands = new Collection();
 
-// Dynamically load command files
+// Load commands
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-  const { name, execute } = await import(`./commands/${file}`);
-  client.commands.set(name, { name, execute });
+  const command = await import(`./commands/${file}`);
+  client.commands.set(command.name, command);
 }
 
-// Music system setup
+// Music system
 client.distube = new DisTube(client, {
   leaveOnStop: false,
   emitNewSongOnly: true,
@@ -38,7 +39,6 @@ client.distube = new DisTube(client, {
   ],
 });
 
-// Command handler
 client.on('messageCreate', async (message) => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -49,14 +49,14 @@ client.on('messageCreate', async (message) => {
   if (!command) return;
 
   try {
-    await command.execute(message, args, client);
+    command.execute(message, args, client);
   } catch (err) {
     console.error(err);
     message.reply('❌ An error occurred.');
   }
 });
 
-client.once('ready', () => {
+client.on('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
