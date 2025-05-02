@@ -7,11 +7,9 @@
   },
   "env": {
     "TOKEN": {
-      "description": "Your Discord bot token",
       "required": true
     },
     "PREFIX": {
-      "description": "Prefix for bot commands",
       "required": true
     }
   }
