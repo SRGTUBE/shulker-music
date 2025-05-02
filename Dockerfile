@@ -1,20 +1,20 @@
-# Use official Node.js image
+# Use an official Node.js runtime as the base image
 FROM node:16
 
-# Set working directory
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy package.json and package-lock.json (if any)
+# Copy package.json and package-lock.json to install dependencies
 COPY package*.json ./
 
-# Clean npm cache and install dependencies
-RUN npm cache clean --force && npm install --legacy-peer-deps
+# Install dependencies (legacy peer dependencies if needed)
+RUN npm install --legacy-peer-deps
 
-# Copy all the other application files
+# Copy the rest of your application files
 COPY . .
 
-# Expose the port
+# Expose the port that your app will use (adjust port if needed)
 EXPOSE 3000
 
-# Start the application
-CMD ["npm", "start"]
+# Define the command to run your app
+CMD ["node", "index.js"]
