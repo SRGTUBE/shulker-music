@@ -1,5 +1,9 @@
 {
   "build": {
-    "builder": "Docker"
+    "builder": "@railway/node",
+    "startCommand": "npm start"
+  },
+  "deploy": {
+    "environment": "production"
   }
 }
