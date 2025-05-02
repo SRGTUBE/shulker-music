@@ -1,16 +1,22 @@
 {
   "build": {
-    "builder": "node"
+    "env": {
+      "TOKEN": {
+        "from_secret": "TOKEN"
+      },
+      "PREFIX": {
+        "from_secret": "PREFIX"
+      }
+    }
   },
   "deploy": {
-    "start": "node index.js"
-  },
-  "env": {
-    "TOKEN": {
-      "required": true
-    },
-    "PREFIX": {
-      "required": true
+    "env": {
+      "TOKEN": {
+        "from_secret": "TOKEN"
+      },
+      "PREFIX": {
+        "from_secret": "PREFIX"
+      }
     }
   }
 }
