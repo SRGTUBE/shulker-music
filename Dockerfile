@@ -1,19 +1,19 @@
 # Use official Node.js image
 FROM node:16
 
-# Create and set the working directory
+# Set working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package.json and package-lock.json (if any)
 COPY package*.json ./
 
 # Clean npm cache and install dependencies
 RUN npm cache clean --force && npm install --legacy-peer-deps
 
-# Copy the rest of the application code
+# Copy all the other application files
 COPY . .
 
-# Expose the port that your app listens on (if needed)
+# Expose the port
 EXPOSE 3000
 
 # Start the application
