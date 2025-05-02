@@ -3,11 +3,11 @@ import { DisTube } from 'distube';
 import { SpotifyPlugin } from '@distube/spotify';
 import { SoundCloudPlugin } from '@distube/soundcloud';
 import { YtDlpPlugin } from '@distube/yt-dlp';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 
-dotenv.config();
+const prefix = process.env.PREFIX || '.';
+const token = process.env.TOKEN;
 
 const client = new Client({
   intents: [
@@ -19,26 +19,26 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-const prefix = process.env.PREFIX || '.';
 
-// Load commands
+// Dynamically load command files
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-  const command = await import(`./commands/${file}`);
-  client.commands.set(command.name, command);
+  const { name, execute } = await import(`./commands/${file}`);
+  client.commands.set(name, { name, execute });
 }
 
-// Music system
+// Music system setup
 client.distube = new DisTube(client, {
   leaveOnStop: false,
   emitNewSongOnly: true,
   plugins: [
     new SpotifyPlugin(),
     new SoundCloudPlugin(),
-    new YtDlpPlugin()
+    new YtDlpPlugin(),
   ],
 });
 
+// Command handler
 client.on('messageCreate', async (message) => {
   if (!message.content.startsWith(prefix) || message.author.bot) return;
 
@@ -49,15 +49,15 @@ client.on('messageCreate', async (message) => {
   if (!command) return;
 
   try {
-    command.execute(message, args, client);
+    await command.execute(message, args, client);
   } catch (err) {
     console.error(err);
     message.reply('❌ An error occurred.');
   }
 });
 
-client.on('ready', () => {
+client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
-client.login(process.env.TOKEN);
+client.login(token);
