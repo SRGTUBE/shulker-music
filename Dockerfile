@@ -1,17 +1,11 @@
-# Use Node.js base image
-FROM node:20
+FROM node:16-alpine
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Fix install error using legacy-peer-deps
-RUN npm install --legacy-peer-deps
+RUN npm install
 
-# Copy all source code
 COPY . .
 
-# Start the bot
 CMD ["npm", "start"]
