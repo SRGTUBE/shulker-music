@@ -1,9 +1,18 @@
 {
   "build": {
-    "builder": "@railway/node",
-    "startCommand": "npm start"
+    "builder": "node"
   },
   "deploy": {
-    "environment": "production"
+    "start": "node index.js"
+  },
+  "env": {
+    "TOKEN": {
+      "description": "Your Discord bot token",
+      "required": true
+    },
+    "PREFIX": {
+      "description": "Prefix for bot commands",
+      "required": true
+    }
   }
 }
