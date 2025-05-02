@@ -1,15 +1,20 @@
-# Use a more recent Node.js version (e.g., 18 or 20)
+# Use official Node.js image as base image
 FROM node:18
 
+# Set the working directory inside the container
 WORKDIR /app
 
+# Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --legacy-peer-deps
+# Install dependencies using legacy peer dependencies and force flag
+RUN npm install --legacy-peer-deps --force
 
+# Copy the rest of your project files to the container
 COPY . .
 
+# Expose the port your application will run on
 EXPOSE 3000
 
-CMD ["node", "index.js"]
+# Start the application
+CMD ["npm", "start"]
