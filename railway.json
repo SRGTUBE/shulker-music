@@ -6,9 +6,9 @@
     }
   ],
   "env": {
-    "DISCORD_TOKEN": "your-discord-bot-token",  // This will be fetched from Railway secrets
-    "PREFIX": "!",  // This will be fetched from Railway secrets
-    "SPOTIFY_CLIENT_ID": "your-spotify-client-id",  // This will be fetched from Railway secrets
-    "SPOTIFY_CLIENT_SECRET": "your-spotify-client-secret"  // This will be fetched from Railway secrets
+    "DISCORD_TOKEN": "your-discord-bot-token",  
+    "PREFIX": "!",  
+    "SPOTIFY_CLIENT_ID": "your-spotify-client-id", 
+    "SPOTIFY_CLIENT_SECRET": "your-spotify-client-secret" 
   }
 }
