@@ -1,63 +1,32 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import { DisTube } from 'distube';
-import dotenv from 'dotenv';
-import { join } from 'path';
+import DisTube from 'distube';
+import { config } from 'dotenv';
+import { RailwaySecrets } from 'railway-secrets'; // Assuming you can use a secrets management package like this
 
-// Load environment variables from .env file
-dotenv.config();
-
-// Create a new Discord client
+// Initialize client and fetch your bot token from Railway secrets
 const client = new Client({
-  intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildVoiceStates,
-  ],
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 });
 
-// Create a new instance of DisTube with the client
+// Fetch the token directly from Railway secrets
+const token = RailwaySecrets.get('DISCORD_BOT_TOKEN'); // Replace with your secret's key
+
+client.once('ready', () => {
+  console.log(`${client.user.tag} is online!`);
+});
+
 const distube = new DisTube(client, {
-  leaveOnEmpty: true,
-  leaveOnFinish: true,
-  leaveOnStop: true,
-  searchSongs: true,
+  searchSongs: false,
   emitNewSongOnly: true,
-});
-
-// Log the bot in using the token from your .env
-client.login(process.env.DISCORD_TOKEN);
-
-client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+  leaveOnFinish: true,
+  youtubeDL: true,
+  highWaterMark: 1024 * 1024 * 10,
 });
 
 client.on('messageCreate', async (message) => {
-  if (message.author.bot) return;
-
-  // Command to play a song
-  if (message.content.startsWith('!play')) {
-    const args = message.content.slice(6).trim(); // Extract the song name or URL
-    distube.play(message.member.voice.channel, args, {
-      textChannel: message.channel,
-      member: message.member,
-    });
-  }
-
-  // Command to skip a song
-  if (message.content === '!skip') {
-    distube.skip(message);
-  }
-
-  // Command to stop playing music
-  if (message.content === '!stop') {
-    distube.stop(message);
-  }
-
-  // Command to queue a song
-  if (message.content === '!queue') {
-    const queue = distube.getQueue(message);
-    if (!queue) return message.channel.send('No songs in the queue!');
-    message.channel.send(`Current Queue: \n${queue.songs.map((song, i) => `${i + 1}. ${song.name}`).join('\n')}`);
+  if (message.content === '!play') {
+    distube.play(message, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
   }
 });
+
+client.login(token);
