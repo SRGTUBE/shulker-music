@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package.json and package-lock.json
 COPY package*.json ./
 
-# Install dependencies using legacy peer dependencies and force flag
-RUN npm install --legacy-peer-deps --force
+# Install dependencies using legacy peer dependencies and force flag, while ignoring scripts
+RUN npm install --ignore-scripts --legacy-peer-deps --force
 
 # Copy the rest of your project files to the container
 COPY . .
