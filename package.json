@@ -1,24 +1,16 @@
 {
-  "name": "shulker-music",
+  "name": "discord-bot",
   "version": "1.0.0",
-  "description": "A music bot for Discord using DisTube",
+  "description": "A Discord music bot using DisTube and discord.js",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^14.11.0",
-    "distube": "3.0.0",
-    "@distube/spotify": "1.2.0",
-    "@distube/yt-dlp": "1.0.0",
-    "@discordjs/voice": "^0.14.0",
-    "dotenv": "^16.3.1",
-    "fs": "0.0.1-security",
-    "path": "^0.12.7"
+    "discord.js": "^14.0.0",
+    "distube": "^4.0.0",
+    "railway-secrets": "^1.0.0"
   },
-  "engines": {
-    "node": ">=16.0.0"
-  },
+  "author": "Your Name",
   "license": "MIT"
 }
