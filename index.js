@@ -1,38 +1,59 @@
-import { Client, GatewayIntentBits } from 'discord.js';
+import { Client, GatewayIntentBits, Partials } from 'discord.js';
 import { DisTube } from 'distube';
-import { secret } from 'railway-secrets';  // Access Railway secrets
+import { SpotifyPlugin } from '@distube/spotify';
+import { SoundCloudPlugin } from '@distube/soundcloud';
+import { YtDlpPlugin } from '@distube/yt-dlp';
 
-// Accessing secrets from Railway
-const token = secret('DISCORD_TOKEN');
-const prefix = secret('PREFIX');
-const spotifyClientId = secret('SPOTIFY_CLIENT_ID');
-const spotifyClientSecret = secret('SPOTIFY_CLIENT_SECRET');
-
-// Create a new client instance
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildMembers,
-    // Add any other intents as needed
+  ],
+  partials: [Partials.Channel],
+});
+
+const distube = new DisTube(client, {
+  emitNewSongOnly: true,
+  leaveOnFinish: false,
+  emitAddSongWhenCreatingQueue: true,
+  emitAddListWhenCreatingQueue: true,
+  plugins: [
+    new SpotifyPlugin({
+      emitEventsAfterFetching: true,
+    }),
+    new SoundCloudPlugin(),
+    new YtDlpPlugin(),
   ],
 });
 
-// Create a new DisTube instance
-const distube = new DisTube(client, {
-  searchSongs: true,
-  emitNewSongOnly: true,
-  spotify: {
-    clientId: spotifyClientId,
-    clientSecret: spotifyClientSecret,
-  },
-});
-
-// When the bot is ready
 client.once('ready', () => {
-  console.log(`${client.user.tag} is now online!`);
+  console.log(`${client.user.username} is online!`);
 });
 
-// Log in to Discord with the token
-client.login(token);
+client.on('messageCreate', async (message) => {
+  if (message.author.bot || !message.guild) return;
+  const prefix = '!';
+
+  if (!message.content.startsWith(prefix)) return;
+
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const command = args.shift()?.toLowerCase();
+
+  if (command === 'play') {
+    const voiceChannel = message.member?.voice.channel;
+    if (!voiceChannel) return message.reply('Join a voice channel first!');
+    distube.play(voiceChannel, args.join(' '), {
+      textChannel: message.channel,
+      member: message.member,
+    });
+  }
+
+  if (command === 'stop') {
+    distube.stop(message);
+    message.channel.send('Stopped the music.');
+  }
+});
+
+client.login(process.env.TOKEN);
