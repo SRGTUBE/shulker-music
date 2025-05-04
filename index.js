@@ -1,77 +1,63 @@
-import { Client, GatewayIntentBits, IntentsBitField } from 'discord.js';
-import { DisTube } from 'distube';
+import { Client, GatewayIntentBits } from 'discord.js';
+import DisTube from 'distube';
 import { SpotifyPlugin } from '@distube/spotify';
-import { SoundCloudPlugin } from '@distube/soundcloud';
 import { YtDlpPlugin } from '@distube/yt-dlp';
-
-const TOKEN = process.env.TOKEN;
 
 const client = new Client({
   intents: [
-    IntentsBitField.Flags.Guilds,
-    IntentsBitField.Flags.GuildVoiceStates,
-    IntentsBitField.Flags.GuildMessages,
-    IntentsBitField.Flags.MessageContent
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent
   ]
 });
 
 const distube = new DisTube(client, {
-  emitNewSongOnly: true,
-  leaveOnEmpty: true,
-  leaveOnFinish: false,
-  leaveOnStop: true,
   plugins: [
-    new SpotifyPlugin(),
-    new SoundCloudPlugin(),
-    new YtDlpPlugin()
+    new SpotifyPlugin(),  // Spotify plugin
+    new YtDlpPlugin()     // yt-dlp plugin
   ]
 });
 
-client.once('ready', () => {
-  console.log(`✅ Logged in as ${client.user.tag}`);
+client.on('ready', () => {
+  console.log(`Logged in as ${client.user.tag}!`);
 });
 
-client.on('messageCreate', async message => {
-  if (!message.guild || message.author.bot) return;
+client.on('messageCreate', async (message) => {
+  if (message.author.bot) return;
 
-  const prefix = '!';
-
-  if (!message.content.startsWith(prefix)) return;
-
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const args = message.content.slice().trim().split(/ +/);
   const command = args.shift().toLowerCase();
 
-  if (command === 'play') {
-    const voiceChannel = message.member.voice.channel;
-    if (!voiceChannel) return message.reply('❌ You must be in a voice channel!');
-    if (!args[0]) return message.reply('❌ Please provide a song name or URL!');
-    distube.play(voiceChannel, args.join(' '), {
+  if (command === '!play') {
+    if (args.length === 0) return message.reply('Please provide a song URL or search term!');
+    
+    distube.play(message.member.voice.channel, args.join(' '), {
+      member: message.member,
       textChannel: message.channel,
-      member: message.member
+      message
     });
   }
 
-  if (command === 'stop') {
-    distube.stop(message);
-    message.channel.send('⏹️ Music stopped.');
+  if (command === '!stop') {
+    distube.stop(message.guild.id);
+    message.reply('Stopped the music!');
   }
 
-  if (command === 'skip') {
-    distube.skip(message);
-    message.channel.send('⏭️ Skipped the song.');
+  if (command === '!skip') {
+    distube.skip(message.guild.id);
+    message.reply('Skipped the current song!');
+  }
+
+  if (command === '!pause') {
+    distube.pause(message.guild.id);
+    message.reply('Paused the music!');
+  }
+
+  if (command === '!resume') {
+    distube.resume(message.guild.id);
+    message.reply('Resumed the music!');
   }
 });
 
-distube
-  .on('playSong', (queue, song) =>
-    queue.textChannel.send(`🎶 Playing \`${song.name}\` - \`${song.formattedDuration}\``)
-  )
-  .on('addSong', (queue, song) =>
-    queue.textChannel.send(`➕ Added \`${song.name}\` - \`${song.formattedDuration}\``)
-  )
-  .on('error', (channel, error) => {
-    console.error(error);
-    channel.send('❌ An error occurred: ' + error.message);
-  });
-
-client.login(TOKEN);
+client.login(process.env.TOKEN);
