@@ -1,22 +1,14 @@
 {
-  "build": {
-    "env": {
-      "TOKEN": {
-        "from_secret": "TOKEN"
-      },
-      "PREFIX": {
-        "from_secret": "PREFIX"
-      }
+  "builds": [
+    {
+      "src": "index.js",
+      "use": "@railway/rails-node"
     }
-  },
-  "deploy": {
-    "env": {
-      "TOKEN": {
-        "from_secret": "TOKEN"
-      },
-      "PREFIX": {
-        "from_secret": "PREFIX"
-      }
-    }
+  ],
+  "env": {
+    "DISCORD_TOKEN": "your-discord-bot-token",  // This will be fetched from Railway secrets
+    "PREFIX": "!",  // This will be fetched from Railway secrets
+    "SPOTIFY_CLIENT_ID": "your-spotify-client-id",  // This will be fetched from Railway secrets
+    "SPOTIFY_CLIENT_SECRET": "your-spotify-client-secret"  // This will be fetched from Railway secrets
   }
 }
