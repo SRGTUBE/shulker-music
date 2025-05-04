@@ -1,69 +1,77 @@
-import { Client, GatewayIntentBits, Collection } from 'discord.js';
+import { Client, GatewayIntentBits, IntentsBitField } from 'discord.js';
 import { DisTube } from 'distube';
 import { SpotifyPlugin } from '@distube/spotify';
 import { SoundCloudPlugin } from '@distube/soundcloud';
 import { YtDlpPlugin } from '@distube/yt-dlp';
-import { config } from 'dotenv'; // For loading secrets (make sure to use the secrets in the platform you're deploying on)
-import fs from 'fs';
-import path from 'path';
 
-// Load secrets from environment variables (use secrets instead of .env file)
-config();  // Use this if you have a .env file in your local development environment or set up correctly with secrets
+const TOKEN = process.env.TOKEN;
 
-const prefix = process.env.PREFIX || '.';
-const token = process.env.TOKEN; // Use your bot token from secrets
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds,
-    GatewayIntentBits.GuildVoiceStates,
-    GatewayIntentBits.GuildMessages,
-    GatewayIntentBits.MessageContent,
-  ],
+    IntentsBitField.Flags.Guilds,
+    IntentsBitField.Flags.GuildVoiceStates,
+    IntentsBitField.Flags.GuildMessages,
+    IntentsBitField.Flags.MessageContent
+  ]
 });
 
-client.commands = new Collection();
-
-// Load commands dynamically
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-  import(`./commands/${file}`).then(command => {
-    client.commands.set(command.name, command);
-  }).catch(err => console.error(err));
-}
-
-// Set up DisTube
-client.distube = new DisTube(client, {
-  leaveOnStop: false,
+const distube = new DisTube(client, {
   emitNewSongOnly: true,
+  leaveOnEmpty: true,
+  leaveOnFinish: false,
+  leaveOnStop: true,
   plugins: [
     new SpotifyPlugin(),
     new SoundCloudPlugin(),
-    new YtDlpPlugin(),
-  ],
+    new YtDlpPlugin()
+  ]
 });
 
-// Command handling
-client.on('messageCreate', async (message) => {
-  if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-  const args = message.content.slice(prefix.length).trim().split(/ +/);
-  const commandName = args.shift().toLowerCase();
-
-  const command = client.commands.get(commandName);
-  if (!command) return;
-
-  try {
-    await command.execute(message, args, client);
-  } catch (err) {
-    console.error(err);
-    message.reply('❌ An error occurred while executing the command.');
-  }
-});
-
-// When the bot is ready
-client.on('ready', () => {
+client.once('ready', () => {
   console.log(`✅ Logged in as ${client.user.tag}`);
 });
 
-// Login to Discord with the bot token
-client.login(token);
+client.on('messageCreate', async message => {
+  if (!message.guild || message.author.bot) return;
+
+  const prefix = '!';
+
+  if (!message.content.startsWith(prefix)) return;
+
+  const args = message.content.slice(prefix.length).trim().split(/ +/);
+  const command = args.shift().toLowerCase();
+
+  if (command === 'play') {
+    const voiceChannel = message.member.voice.channel;
+    if (!voiceChannel) return message.reply('❌ You must be in a voice channel!');
+    if (!args[0]) return message.reply('❌ Please provide a song name or URL!');
+    distube.play(voiceChannel, args.join(' '), {
+      textChannel: message.channel,
+      member: message.member
+    });
+  }
+
+  if (command === 'stop') {
+    distube.stop(message);
+    message.channel.send('⏹️ Music stopped.');
+  }
+
+  if (command === 'skip') {
+    distube.skip(message);
+    message.channel.send('⏭️ Skipped the song.');
+  }
+});
+
+distube
+  .on('playSong', (queue, song) =>
+    queue.textChannel.send(`🎶 Playing \`${song.name}\` - \`${song.formattedDuration}\``)
+  )
+  .on('addSong', (queue, song) =>
+    queue.textChannel.send(`➕ Added \`${song.name}\` - \`${song.formattedDuration}\``)
+  )
+  .on('error', (channel, error) => {
+    console.error(error);
+    channel.send('❌ An error occurred: ' + error.message);
+  });
+
+client.login(TOKEN);
