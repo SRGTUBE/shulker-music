@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import DisTube from 'distube';
+import { DisTube } from 'distube'; // Correctly import DisTube
 
 // Initialize client and fetch your bot token from Railway secrets
 const client = new Client({
@@ -13,6 +13,7 @@ client.once('ready', () => {
   console.log(`${client.user.tag} is online!`);
 });
 
+// Initialize DisTube correctly
 const distube = new DisTube(client, {
   searchSongs: false,
   emitNewSongOnly: true,
