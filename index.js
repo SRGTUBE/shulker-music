@@ -1,15 +1,13 @@
 import { Client, GatewayIntentBits } from 'discord.js';
 import DisTube from 'distube';
-import { config } from 'dotenv';
-import { RailwaySecrets } from 'railway-secrets'; // Assuming you can use a secrets management package like this
 
 // Initialize client and fetch your bot token from Railway secrets
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 });
 
-// Fetch the token directly from Railway secrets
-const token = RailwaySecrets.get('DISCORD_BOT_TOKEN'); // Replace with your secret's key
+// Access the token directly from environment variables (Railway automatically loads secrets as env vars)
+const token = process.env.DISCORD_BOT_TOKEN;  // Your secret key should be 'DISCORD_BOT_TOKEN' in Railway secrets
 
 client.once('ready', () => {
   console.log(`${client.user.tag} is online!`);
