@@ -3,7 +3,11 @@ import { DisTube } from 'distube'; // Correctly import DisTube
 
 // Initialize client and fetch your bot token from Railway secrets
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [
+    GatewayIntentBits.Guilds, 
+    GatewayIntentBits.GuildMessages, 
+    GatewayIntentBits.MessageContent
+  ],
 });
 
 // Access the token directly from environment variables (Railway automatically loads secrets as env vars)
