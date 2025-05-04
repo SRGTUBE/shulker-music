@@ -1,35 +1,38 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import { DisTube } from 'distube'; // Correctly import DisTube
+import { DisTube } from 'distube';
+import { secret } from 'railway-secrets';  // Access Railway secrets
 
-// Initialize client and fetch your bot token from Railway secrets
+// Accessing secrets from Railway
+const token = secret('DISCORD_TOKEN');
+const prefix = secret('PREFIX');
+const spotifyClientId = secret('SPOTIFY_CLIENT_ID');
+const spotifyClientSecret = secret('SPOTIFY_CLIENT_SECRET');
+
+// Create a new client instance
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds, 
-    GatewayIntentBits.GuildMessages, 
-    GatewayIntentBits.MessageContent
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMembers,
+    // Add any other intents as needed
   ],
 });
 
-// Access the token directly from environment variables (Railway automatically loads secrets as env vars)
-const token = process.env.DISCORD_BOT_TOKEN;  // Your secret key should be 'DISCORD_BOT_TOKEN' in Railway secrets
-
-client.once('ready', () => {
-  console.log(`${client.user.tag} is online!`);
-});
-
-// Initialize DisTube correctly
+// Create a new DisTube instance
 const distube = new DisTube(client, {
-  searchSongs: false,
+  searchSongs: true,
   emitNewSongOnly: true,
-  leaveOnFinish: true,
-  youtubeDL: true,
-  highWaterMark: 1024 * 1024 * 10,
+  spotify: {
+    clientId: spotifyClientId,
+    clientSecret: spotifyClientSecret,
+  },
 });
 
-client.on('messageCreate', async (message) => {
-  if (message.content === '!play') {
-    distube.play(message, 'https://www.youtube.com/watch?v=dQw4w9WgXcQ');
-  }
+// When the bot is ready
+client.once('ready', () => {
+  console.log(`${client.user.tag} is now online!`);
 });
 
+// Log in to Discord with the token
 client.login(token);
