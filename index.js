@@ -1,5 +1,5 @@
 import { Client, GatewayIntentBits } from 'discord.js';
-import DisTube from 'distube';
+import { DisTube } from 'distube'; // Adjusted import for DisTube
 import { SpotifyPlugin } from '@distube/spotify';
 import { YtDlpPlugin } from '@distube/yt-dlp';
 
@@ -12,7 +12,9 @@ const client = new Client({
   ]
 });
 
-const distube = new DisTube(client, {
+// Initialize DisTube using correct syntax
+const distube = new DisTube({
+  client,
   plugins: [
     new SpotifyPlugin(),  // Spotify plugin
     new YtDlpPlugin()     // yt-dlp plugin
