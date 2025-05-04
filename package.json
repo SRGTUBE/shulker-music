@@ -1,16 +1,13 @@
 {
-  "name": "discord-bot",
+  "name": "your-bot",
   "version": "1.0.0",
-  "description": "A Discord music bot using DisTube and discord.js",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "node index.js"
   },
   "dependencies": {
-    "discord.js": "^14.0.0",
-    "distube": "^4.0.0",
-    "railway-secrets": "^1.0.0"
-  },
-  "author": "Your Name",
-  "license": "MIT"
+    "discord.js": "^14.14.1",
+    "distube": "^4.1.1"
+  }
 }
